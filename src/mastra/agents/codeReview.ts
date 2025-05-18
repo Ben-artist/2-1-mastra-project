@@ -1,6 +1,6 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
-import { LibSQLStore } from '@mastra/libsql';
+// import { LibSQLStore } from '@mastra/libsql';
 import { deepseek } from '@ai-sdk/deepseek';
 import { codeReviewTool } from '../tools';
 
@@ -24,16 +24,6 @@ export const codeReviewAgent = new Agent({
   `,
   model: deepseek('deepseek-coder'),
   tools: { codeReviewTool },
-  memory: new Memory({
-    storage: new LibSQLStore({
-      url: 'file:../mastra.db', // 路径相对于.mastra/output目录
-    }),
-    options: {
-      lastMessages: 10,
-      semanticRecall: false,
-      threads: {
-        generateTitle: false,
-      },
-    },
-  }),
+  // 不在全局范围初始化memory，而是在请求处理时初始化
+  memory: undefined
 });

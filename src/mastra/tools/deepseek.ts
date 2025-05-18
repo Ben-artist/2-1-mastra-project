@@ -1,5 +1,6 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
+import { generateDeepseekApiKey } from '../../utils/api-key-generator';
 
 // DeepSeek API接口类型
 interface DeepSeekResponse {
@@ -22,6 +23,16 @@ interface DeepSeekResponse {
   };
 }
 
+// 声明全局类型，解决Cloudflare Worker环境变量访问问题
+declare global {
+  var env: Record<string, any> | undefined;
+}
+
+// Cloudflare Worker的self类型
+interface CloudflareWorkerSelf extends Window {
+  env?: Record<string, any>;
+}
+
 // 创建DeepSeek工具
 export const codeReviewTool = createTool({
   id: 'code-review',
@@ -36,72 +47,134 @@ export const codeReviewTool = createTool({
     suggestions: z.array(z.string()).describe('改进建议'),
   }),
   execute: async ({ context }) => {
-    const apiKey = process.env.DEEPSEEK_API_KEY || '';
+    // 运行时获取API密钥，适配不同环境
+    const apiKey = getApiKey();
+    
     if (!apiKey) {
       throw new Error('未找到DeepSeek API密钥，请确保设置了DEEPSEEK_API_KEY环境变量');
     }
     
-    return await reviewCode(context.code, context.language, context.focus, apiKey);
+    return await reviewCode(
+      context.code, 
+      apiKey,
+      context.language, 
+      context.focus
+    );
   },
 });
 
-// 调用DeepSeek API进行代码审查
-const reviewCode = async (
-  code: string,
-  language: string = '',
-  focus: string = '',
-  apiKey: string
-) => {
-  const apiUrl = 'https://api.deepseek.com/v1/chat/completions';
-  
-  // 构建审查提示
-  let prompt = `请对以下${language ? language + '语言的' : ''}代码进行全面审查`;
-  if (focus) {
-    prompt += `，重点关注${focus}方面`;
+/**
+ * 获取API密钥的函数，支持多种环境
+ */
+function getApiKey(): string | undefined {
+  // 1. 尝试从process.env获取（Node.js环境）
+  if (process.env && process.env.DEEPSEEK_API_KEY) {
+    return process.env.DEEPSEEK_API_KEY;
   }
-  prompt += `:\n\n\`\`\`${language}\n${code}\n\`\`\`\n\n请提供详细的审查意见，指出代码中的问题并给出改进建议。`;
   
+  // 2. 尝试从全局env对象获取（Cloudflare Worker环境）
+  if (typeof globalThis !== 'undefined' && 
+      typeof globalThis.env !== 'undefined' &&
+      globalThis.env.DEEPSEEK_API_KEY) {
+    return globalThis.env.DEEPSEEK_API_KEY as string;
+  }
+  
+  // 3. 尝试从self.env获取（另一种Cloudflare Worker访问方式）
+  if (typeof self !== 'undefined') {
+    const workerSelf = self as unknown as CloudflareWorkerSelf;
+    if (workerSelf.env && workerSelf.env.DEEPSEEK_API_KEY) {
+      return workerSelf.env.DEEPSEEK_API_KEY as string;
+    }
+  }
+  
+  // 4. 如果环境变量都未设置，使用生成器创建API密钥
   try {
-    const response = await fetch(apiUrl, {
+    return generateDeepseekApiKey();
+  } catch (error) {
+    console.error('无法生成API密钥:', error);
+    return undefined;
+  }
+}
+
+// 代码审查逻辑
+async function reviewCode(
+  code: string, 
+  apiKey: string,
+  language?: string, 
+  focus?: string
+): Promise<{ review: string; suggestions: string[] }> {
+  try {
+    // 构建提示
+    const prompt = `
+请审查以下${language || ''}代码${focus ? `，特别关注${focus}方面` : ''}：
+
+\`\`\`
+${code}
+\`\`\`
+
+请提供:
+1. 整体代码质量评估
+2. 具体问题和改进建议
+3. 代码的优点
+`;
+
+    // 调用DeepSeek API
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'deepseek-coder',
+        model: 'deepseek-chat',
         messages: [
-          {
-            role: 'user',
-            content: prompt,
-          }
+          { role: 'system', content: '你是一个专业的代码审查助手，擅长分析代码质量并提供具体改进建议。' },
+          { role: 'user', content: prompt }
         ],
         temperature: 0.3,
-        max_tokens: 2000,
-      }),
+        max_tokens: 1500
+      })
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`DeepSeek API请求失败: ${response.status} ${errorText}`);
     }
-    
+
     const data = await response.json() as DeepSeekResponse;
-    
-    // 解析API响应
-    const reviewContent = data.choices[0].message.content;
-    
-    // 提取建议
-    const suggestionPattern = /(?:建议|推荐|应该|可以|最好|需要)[^。！？\n]+/g;
-    const suggestions = (reviewContent.match(suggestionPattern) || [])
-      .filter(s => s.length > 5)
-      .slice(0, 10);
-    
+    const reviewText = data.choices[0]?.message?.content || '无法生成审查结果';
+
+    // 从审查文本中提取建议
+    const suggestions = extractSuggestions(reviewText);
+
     return {
-      review: reviewContent,
-      suggestions: suggestions.length > 0 ? suggestions : ['根据代码分析不需要特别改进'],
+      review: reviewText,
+      suggestions,
     };
   } catch (error) {
+    console.error('代码审查失败:', error);
     throw new Error(`代码审查失败: ${(error as Error).message}`);
   }
-}; 
+}
+
+// 从审查文本中提取建议
+function extractSuggestions(reviewText: string): string[] {
+  // 简单的建议提取逻辑：寻找数字列表或破折号列表
+  const suggestionRegexes = [
+    /\d+\.\s+([^\n]+)/g,  // 数字列表：1. 建议内容
+    /[-•]\s+([^\n]+)/g,   // 破折号或项目符号列表：- 建议内容
+    /建议:\s+([^\n]+)/g,  // "建议："后面的内容
+  ];
+
+  const suggestions: string[] = [];
+  for (const regex of suggestionRegexes) {
+    let match;
+    while ((match = regex.exec(reviewText)) !== null) {
+      if (match[1] && match[1].length > 10) { // 过滤太短的建议
+        suggestions.push(match[1].trim());
+      }
+    }
+  }
+
+  return suggestions.length > 0 ? suggestions : ['查看完整审查报告获取详细建议'];
+} 
