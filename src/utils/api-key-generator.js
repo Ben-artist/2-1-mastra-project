@@ -72,7 +72,6 @@ export function generateDeepseekApiKey() {
     _0x5e91()            // a2cedf5241978957
   ];
   
-  // 按顺序组合，结果是sk-b5c1f7466c654f11a2cedf5241978957
   return parts.join('');
 }
 

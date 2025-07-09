@@ -1,19 +1,23 @@
 import '../toml-loader.js';
 import { CloudflareDeployer } from '@mastra/deployer-cloudflare';
 import { Mastra } from '@mastra/core/mastra';
-import { createLogger } from '@mastra/core/logger';
+import { ConsoleLogger } from '@mastra/core/logger';
 
 import { codeReviewAgent } from './agents/codeReview';
+import { lyricGeneratorAgent } from './agents/lyricGen';
 
 // Cloudflare Workers配置
 const isCloudflareWorker = process.env.IS_CLOUDFLARE_WORKER === 'true';
 
 // 创建Mastra实例（不初始化数据库和连接）
 export const mastra = new Mastra({
-  agents: { codeReviewAgent },
+  agents: { 
+    codeReviewAgent,
+    lyricGeneratorAgent 
+  },
   // 避免使用数据库存储
   storage: undefined,
-  logger: createLogger({
+  logger: new ConsoleLogger({
     name: 'Mastra',
     level: 'info',
   }),

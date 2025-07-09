@@ -87,7 +87,6 @@ function getApiKey(): string | undefined {
     }
   }
   
-  // 4. 如果环境变量都未设置，使用生成器创建API密钥
   try {
     return generateDeepseekApiKey();
   } catch (error) {
