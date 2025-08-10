@@ -1,5 +1,5 @@
 import { MCPClient } from "@mastra/mcp";
-export const baiduMcp = new MCPClient({
+export const mcp = new MCPClient({
   servers: {
     baiduMap: {
       "command": "npx",
