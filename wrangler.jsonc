@@ -1,11 +1,5 @@
 {
   "name": "my-mastra-app",
-  "main": "./.mastra/output/index.mjs",
-  "compatibility_date": "2025-08-10",
-  "compatibility_flags": [
-    "global_fetch_strictly_public"
-  ],
-  "env": {
-    "BAIDU_MAP_API_KEY": "iYfNm4eOjzWuxEEtGOoIHcHUHQ5ZE2rA"
-  }
+  "main": "./index.mjs",
+  "compatibility_date": "2025-08-10"
 }

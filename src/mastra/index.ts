@@ -3,6 +3,7 @@ import { ConsoleLogger } from '@mastra/core/logger';
 import { Agent } from '@mastra/core/agent';
 import { deepseek } from '@ai-sdk/deepseek';
 import { baiduMcp } from './agents/baidu';
+import { CloudflareDeployer } from '@mastra/deployer-cloudflare';
 // 创建通用助手智能体
 const myAgent = new Agent({
   name: 'myAgent',
@@ -23,6 +24,13 @@ export const mastra = new Mastra({
     name: 'Mastra',
     level: 'info',
   }),
+  deployer: new CloudflareDeployer({
+    scope: '',
+    projectName: 'Mastra',
+    auth: {
+      apiToken: "THrRVoLflyQhy0E5pxgIzypBPpsCqIz1qzAqceGf",
+    },
+  })
 });
 
 export default {
