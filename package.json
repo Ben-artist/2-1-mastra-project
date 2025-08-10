@@ -19,7 +19,7 @@
   "dependencies": {
     "@ai-sdk/deepseek": "^0.2.14",
     "@mastra/core": "^0.13.1",
-    "@mastra/deployer-cloudflare": "^0.1.23",
+    "@mastra/deployer-cloudflare": "^0.11.5",
     "@mastra/mcp": "^0.10.10",
     "@mastra/memory": "^0.11.2",
     "@mastra/rag": "^1.0.2",

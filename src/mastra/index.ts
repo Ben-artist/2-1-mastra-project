@@ -24,7 +24,7 @@ export const mastra = new Mastra({
     level: 'info',
   }),
   deployer: new CloudflareDeployer({
-    scope: "672e20737b497a5b4e4ed7cfd3cf9290",
-    projectName: 'mastra-test',
+    // scope: "672e20737b497a5b4e4ed7cfd3cf9290",
+    // projectName: 'mastra-test',
   })
 });
