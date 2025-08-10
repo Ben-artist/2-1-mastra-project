@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "mastra build && wrangler dev --config .mastra/output/wrangler.json",
-    "deploy": "npm run build && wrangler deploy --config .mastra/output/wrangler.json",
     "start": "mastra dev",
-    "build": "mastra build && wrangler deploy --config .mastra/output/wrangler.json"
+    "build": "mastra build",
+    "dev": "npm run build && wrangler dev --config .mastra/output/wrangler.json",
+    "deploy": "npm run build && wrangler deploy --config .mastra/output/wrangler.json"
   },
   "keywords": [],
   "author": "",
