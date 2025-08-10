@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "mastra dev",
-    "build": "mastra build",
-    "start": "bash ./start-dev.sh"
+    "dev": "wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "start": "mastra dev",
+    "build": "mastra build"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
     "@types/node": "^22.17.1",
     "mastra": "^0.10.20",
     "tsx": "^4.20.3",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "wrangler": "^3.101.0"
   }
 }

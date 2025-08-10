@@ -28,6 +28,6 @@ export const mastra = new Mastra({
 export default {
   async fetch(request: Request) {
     // @ts-ignore
-    return Response("Hello, world!");
+    return new Response('Hello, World!');
   },
 }
