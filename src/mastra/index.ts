@@ -2,7 +2,7 @@ import { Mastra } from '@mastra/core/mastra';
 import { ConsoleLogger } from '@mastra/core/logger';
 import { Agent } from '@mastra/core/agent';
 import { createDeepSeek } from '@ai-sdk/deepseek';
-import { mcp } from './agents/baidu';
+import { mcp } from './agents/cook';
 import { CloudflareDeployer } from '@mastra/deployer-cloudflare';
 const deepseek = createDeepSeek({
   apiKey: "sk-3e407cd7b7e2428285ce5e28973d6073",
@@ -27,8 +27,6 @@ export const mastra = new Mastra({
     level: 'info',
   }),
   deployer: new CloudflareDeployer({
-    env: {
-      apiToken: "H_eorAkqej7Qwum5ov_YmAQy41dSSUKfrwKHr00w",
-    },
+    workerNamespace: 'cook-agent',
   })
 });
