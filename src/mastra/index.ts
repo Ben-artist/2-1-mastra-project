@@ -1,9 +1,12 @@
 import { Mastra } from '@mastra/core/mastra';
 import { ConsoleLogger } from '@mastra/core/logger';
 import { Agent } from '@mastra/core/agent';
-import { deepseek } from '@ai-sdk/deepseek';
+import { createDeepSeek } from '@ai-sdk/deepseek';
 import { mcp } from './agents/baidu';
 import { CloudflareDeployer } from '@mastra/deployer-cloudflare';
+const deepseek = createDeepSeek({
+  apiKey: "sk-3e407cd7b7e2428285ce5e28973d6073",
+}); 
 // 创建通用助手智能体
 const myAgent = new Agent({
   name: 'cook-agent',
@@ -27,7 +30,5 @@ export const mastra = new Mastra({
     env: {
       apiToken: "H_eorAkqej7Qwum5ov_YmAQy41dSSUKfrwKHr00w",
     },
-    // scope: "672e20737b497a5b4e4ed7cfd3cf9290",
-    // projectName: 'mastra-test',
   })
 });
