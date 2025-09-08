@@ -50,6 +50,12 @@ my-mastra-app/
 - **实时数据**: 获取当前温度、湿度、风速等信息
 - **天气代码**: 自动转换天气代码为可读描述
 
+### 5. 文案扩写工具
+- **智能扩写**: 使用DeepSeek AI对文案进行智能扩写
+- **多种风格**: 支持详细、创意、专业、轻松四种扩写风格
+- **长度控制**: 可控制扩写后的文案长度（简短、中等、详细）
+- **质量优化**: 提供文案优化建议和扩写比例分析
+
 ## 安装和配置
 
 ### 环境要求
@@ -264,6 +270,61 @@ console.log(`体感温度: ${weather.feelsLike}°C`);
 console.log(`湿度: ${weather.humidity}%`);
 console.log(`风速: ${weather.windSpeed} km/h`);
 console.log(`天气状况: ${weather.conditions}`);
+```
+
+### 5. 使用文案扩写工具
+
+#### 基础文案扩写
+```typescript
+import { textExpandTool } from './src/mastra/tools';
+
+// 详细风格扩写
+const detailedResult = await textExpandTool.execute({
+  originalText: "今天天气很好",
+  expandType: "detailed",
+  targetLength: "medium",
+  additionalContext: "用于朋友圈分享"
+});
+
+console.log(detailedResult.expandedText);
+console.log(`扩写比例: ${detailedResult.expandRatio}倍`);
+console.log(`优化建议: ${detailedResult.suggestions.join(', ')}`);
+```
+
+#### 创意风格扩写
+```typescript
+// 创意风格扩写
+const creativeResult = await textExpandTool.execute({
+  originalText: "产品功能强大",
+  expandType: "creative",
+  targetLength: "long"
+});
+
+console.log(creativeResult.expandedText);
+```
+
+#### 专业风格扩写
+```typescript
+// 专业风格扩写
+const professionalResult = await textExpandTool.execute({
+  originalText: "我们的服务很专业",
+  expandType: "professional",
+  targetLength: "medium",
+  additionalContext: "用于公司官网介绍"
+});
+
+console.log(professionalResult.expandedText);
+```
+
+#### 通过智能体使用
+你也可以直接与文案扩写智能体对话：
+```
+用户：帮我扩写"这个产品很棒"
+助手：我来帮你扩写这个文案。
+[使用textExpand工具，originalText="这个产品很棒", expandType="detailed", targetLength="medium"]
+扩写完成！原文6个字，扩写后XX个字，扩写比例X.X倍。
+
+详细描述风格：这个产品真的很棒，它不仅功能强大，而且设计精美，用户体验极佳。无论是从技术层面还是从实用角度来看，都展现出了卓越的品质和创新的理念。
 ```
 
 ## 开发指南

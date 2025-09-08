@@ -39,5 +39,4 @@ export const webAgent = new Agent({
 `,
   model: deepseek('deepseek-chat'),
   tools: { pageActTool, pageObserveTool, pageExtractTool, pageNavigateTool },
-  memory: memory,
 });
