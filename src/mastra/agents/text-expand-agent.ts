@@ -3,7 +3,7 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { textExpandTool } from '../tools/text-expand-tool';
 
 const deepseek = createDeepSeek({
-  apiKey: process.env.DEEPSEEK_API_KEY || "sk-3e407cd7b7e2428285ce5e28973d6073",
+  apiKey: "sk-d08d15ac6d0f4729929d63b063796d13",
 });
 
 // 创建技术博客生成智能体
